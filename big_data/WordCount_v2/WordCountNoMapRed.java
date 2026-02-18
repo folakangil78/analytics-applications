@@ -30,6 +30,23 @@ public class WordCountNoMapRed {
 
             int dateIndex = -1;
             int deathAvgIndex = -1;
-            
+
+            while ((line = br.readLine()) != null) {
+
+                String[] columns = line.split(",");
+
+                // Handle header row
+                if (isHeader) {
+                    for (int i = 0; i < columns.length; i++) {
+                        if (columns[i].equalsIgnoreCase("date_of_interest")) {
+                            dateIndex = i;
+                        }
+                        if (columns[i].equalsIgnoreCase("death_count_7day_avg")) {
+                            deathAvgIndex = i;
+                        }
+                    }
+                    isHeader = false;
+                    continue;
+                }
     }
 }

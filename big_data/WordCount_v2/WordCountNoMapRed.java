@@ -5,5 +5,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WordCountNoMapRed {
-    
+    public static void main(String[] args) {
+
+        if (args.length != 1) {
+            System.out.println("Usage: java CovidMaxDeathsByYear <input_file>");
+            return;
+        }
+
+        String filePath = args[0];
+
+        // Store max death averages per year
+        Map<String, Double> maxByYear = new HashMap<>();
+
+        // Initialize target years
+        maxByYear.put("2019", Double.MIN_VALUE);
+        maxByYear.put("2020", Double.MIN_VALUE);
+        maxByYear.put("2021", Double.MIN_VALUE);
+        maxByYear.put("2022", Double.MIN_VALUE);
+    }
 }

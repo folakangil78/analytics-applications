@@ -83,5 +83,14 @@ public class WordCountNoMapRed {
                     // Skip invalid numbers
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Print results in required order
+        System.out.println("2019: " + maxByYear.get("2019"));
+        System.out.println("2020: " + maxByYear.get("2020"));
+        System.out.println("2021: " + maxByYear.get("2021"));
+        System.out.println("2022: " + maxByYear.get("2022"));
     }
 }

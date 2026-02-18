@@ -22,5 +22,14 @@ public class WordCountNoMapRed {
         maxByYear.put("2020", Double.MIN_VALUE);
         maxByYear.put("2021", Double.MIN_VALUE);
         maxByYear.put("2022", Double.MIN_VALUE);
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+
+            String line;
+            boolean isHeader = true;
+
+            int dateIndex = -1;
+            int deathAvgIndex = -1;
+            
     }
 }

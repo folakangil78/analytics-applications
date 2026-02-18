@@ -62,52 +62,29 @@ public class WordCountNoMapRed {
             String line;
 
             while ((line = br.readLine()) != null) {
-                // Remove all quotes first
-                line = line.replace("\"", "");
 
                 String[] columns = line.split(",");
 
-                if (columns.length <= deathAvgIndex) {
-                    continue;
-                }
+                if (columns.length <= deathAvgIndex) continue;
 
-                String date = columns[dateIndex].trim();
-                String deathStr = columns[deathAvgIndex].trim();
+                String date = columns[dateIndex].replace("\"", "").trim();
+                String deathAvgStr = columns[deathAvgIndex].replace("\"", "").trim();
 
-                if (date.isEmpty() || deathStr.isEmpty()) {
-                    continue;
-                }
-
-                String year = date.substring(0, 4);
-
-                double value;
+                if (deathAvgStr.isEmpty()) continue;
 
                 try {
-                    value = Double.parseDouble(deathStr);
-                } catch (NumberFormatException e) {
-                    continue;
-                }
+                    double deathAvg = Double.parseDouble(deathAvgStr);
+                    int year = Integer.parseInt(date.substring(0, 4));
 
-                if (year.equals("2019") && value > max2019) {
-                    max2019 = value;
-                }
-                if (year.equals("2020") && value > max2020) {
-                    max2020 = value;
-                }
-                if (year.equals("2021") && value > max2021) {
-                    max2021 = value;
-                }
-                if (year.equals("2022") && value > max2022) {
-                    max2022 = value;
+                    if (year == 2019 && deathAvg > max2019) max2019 = deathAvg;
+                    if (year == 2020 && deathAvg > max2020) max2020 = deathAvg;
+                    if (year == 2021 && deathAvg > max2021) max2021 = deathAvg;
+                    if (year == 2022 && deathAvg > max2022) max2022 = deathAvg;
+
+                } catch (Exception e) {
+                    // ignore bad rows
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-
-        System.out.println("2019  " + (int) max2019);
-        System.out.println("2020  " + (int) max2020);
-        System.out.println("2021  " + (int) max2021);
-        System.out.println("2022  " + (int) max2022);
     }
 }

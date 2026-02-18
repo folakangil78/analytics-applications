@@ -48,5 +48,40 @@ public class WordCountNoMapRed {
                     isHeader = false;
                     continue;
                 }
+
+                // Skip if columns missing
+                if (dateIndex == -1 || deathAvgIndex == -1) {
+                    System.out.println("Required columns not found.");
+                    return;
+                }
+
+                if (columns.length <= deathAvgIndex) {
+                    continue;
+                }
+
+                String date = columns[dateIndex].trim();
+                String deathAvgStr = columns[deathAvgIndex].trim();
+
+                if (date.isEmpty() || deathAvgStr.isEmpty()) {
+                    continue;
+                }
+
+                String year = date.substring(0, 4);
+
+                if (!maxByYear.containsKey(year)) {
+                    continue;
+                }
+
+                try {
+                    double deathAvg = Double.parseDouble(deathAvgStr);
+
+                    if (deathAvg > maxByYear.get(year)) {
+                        maxByYear.put(year, deathAvg);
+                    }
+
+                } catch (NumberFormatException e) {
+                    // Skip invalid numbers
+                }
+            }
     }
 }

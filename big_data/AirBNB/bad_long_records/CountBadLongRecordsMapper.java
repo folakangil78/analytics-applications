@@ -25,7 +25,7 @@ public class CountBadLongRecordsMapper extends Mapper<LongWritable, Text, Text, 
         }
 
         // CSV-safe split
-        String[] fields = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+        String[] fields = line.split(",");
 
         if (fields.length > EXPECTED_FIELDS) {
             context.write(badKey, one);

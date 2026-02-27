@@ -21,4 +21,16 @@ public class NeighborhoodMapper extends Mapper<LongWritable, Text, Text, IntWrit
 
         // Split CSV safely
         String[] fields = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+
+        if (fields.length > 5) {
+
+            String neighbourhoodGroup = fields[4].trim();
+            String neighbourhood = fields[5].trim();
+
+            String outputKey = neighbourhoodGroup + " " + neighbourhood;
+
+            neighborhoodKey.set(outputKey);
+            context.write(neighborhoodKey, one);
+        }
+    }
 }

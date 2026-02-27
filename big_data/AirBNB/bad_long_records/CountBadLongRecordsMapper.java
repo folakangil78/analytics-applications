@@ -18,4 +18,17 @@ public class CountBadLongRecordsMapper extends Mapper<LongWritable, Text, Text, 
             throws IOException, InterruptedException {
 
         String line = value.toString();
+
+        // Skip header
+        if (line.startsWith("id,")) {
+            return;
+        }
+
+        // CSV-safe split
+        String[] fields = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+
+        if (fields.length > EXPECTED_FIELDS) {
+            context.write(badKey, one);
+        }
+    }
 }

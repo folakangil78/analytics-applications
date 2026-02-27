@@ -7,5 +7,23 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class CountBadLongRecordsDriver {
+    public static void main(String[] args) throws Exception {
 
+        Configuration conf = new Configuration();
+
+        Job job = Job.getInstance(conf, "Count Bad Long Records");
+
+        job.setJarByClass(CountBadLongRecordsDriver.class);
+
+        job.setMapperClass(CountBadLongRecordsMapper.class);
+        job.setReducerClass(CountBadLongRecordsReducer.class);
+
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
+
+        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+        System.exit(job.waitForCompletion(true) ? 0 : 1);
+    }
 }

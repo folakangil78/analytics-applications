@@ -38,3 +38,16 @@ object CountRecs {
     println(s"Distinct FROM_ADDRESS: $fromDistinct")
     println(s"Distinct TO_ADDRESS: $toDistinct")
     println(s"Distinct CONTRACT_ADDRESS: $contractDistinct")
+
+    // -----------------------------
+    // BASIC AGG (for intuition)
+    // -----------------------------
+
+    df.groupBy("FROM_ADDRESS")
+      .count()
+      .orderBy(org.apache.spark.sql.functions.desc("count"))
+      .show(10)
+
+    spark.stop()
+  }
+}

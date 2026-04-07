@@ -9,10 +9,18 @@ object CountRecs {
 
     val sc = spark.sparkContext
 
-    // Path to your downloaded parquet files
-    val inputPath = "Arbitrum/arbitrum_sample"
+    // Path to your downloaded parquet file
+    // Point directly to the root folder using the local file:// prefix
+    val inputPath = "file:///home/fjo2015_nyu_edu/Arbitrum/arbitrum_sample"
 
-    val df = spark.read.parquet(inputPath)
+    // 2. Let Spark natively handle the recursion and force it to merge any mismatched schemas
+    val df = spark.read
+      .option("recursiveFileLookup", "true")
+      .option("mergeSchema", "true") 
+      .parquet(inputPath)
+
+    // 3. Optional: Print the schema to prove it worked before running your counts!
+    df.printSchema()
 
     // -----------------------------
     // COUNT RECORDS USING MAP

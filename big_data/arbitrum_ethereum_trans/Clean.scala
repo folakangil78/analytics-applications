@@ -8,10 +8,36 @@ object Clean {
       .appName("Clean Arbitrum Data")
       .getOrCreate()
 
-    val inputPath = "Arbitrum/arbitrum_sample"
+    val inputPath = "file:///home/fjo2015_nyu_edu/Arbitrum/arbitrum_sample"
     val outputPath = "hdfs:///user/cleaned_arbitrum/"
 
-    val df = spark.read.parquet(inputPath)
+    
+    import org.apache.hadoop.fs.{FileSystem, Path}
+
+    // Build list of real Parquet files
+    val fs = FileSystem.get(spark.sparkContext.hadoopConfiguration)
+    val root = new Path(inputPath)
+
+    // Recursively collect paths if nested
+    def collectParquetFiles(path: Path): Seq[String] = {
+    val status = fs.listStatus(path)
+    status.flatMap { s =>
+        val p = s.getPath
+        if (s.isDirectory) {
+        collectParquetFiles(p)
+        } else if (p.getName.endsWith(".parquet")) {
+        Seq(p.toString)
+        } else {
+        Seq.empty
+        }
+    }
+    }
+
+    val parquetFiles: Seq[String] = collectParquetFiles(root)
+    println(s"Number of valid Parquet files: ${parquetFiles.size}")
+
+    val df = spark.read.parquet(parquetFiles: _*)
+
 
     // -----------------------------
     // SELECT ONLY RELEVANT COLUMNS

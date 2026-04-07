@@ -25,3 +25,19 @@ object Clean {
       col("STATUS"),
       col("CONTRACT_ADDRESS")
     )
+
+    // -----------------------------
+    // DROP NULLS
+    // -----------------------------
+    val nonNull = cleaned.na.drop()
+
+    // -----------------------------
+    // FILTER FAILED TRANSACTIONS
+    // STATUS == 1 means success
+    // -----------------------------
+    val validTx = nonNull.filter(col("STATUS") === 1)
+
+    // -----------------------------
+    // REMOVE ZERO VALUE TX (noise)
+    // -----------------------------
+    val meaningful = validTx.filter(col("VALUE") > 0)

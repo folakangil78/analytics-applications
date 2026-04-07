@@ -26,3 +26,15 @@ object CountRecs {
 
     println("Total Records:")
     count.foreach(println)
+
+    // -----------------------------
+    // DISTINCT VALUES (IMPORTANT COLUMNS)
+    // -----------------------------
+
+    val fromDistinct = df.select("FROM_ADDRESS").distinct().count()
+    val toDistinct = df.select("TO_ADDRESS").distinct().count()
+    val contractDistinct = df.select("CONTRACT_ADDRESS").distinct().count()
+
+    println(s"Distinct FROM_ADDRESS: $fromDistinct")
+    println(s"Distinct TO_ADDRESS: $toDistinct")
+    println(s"Distinct CONTRACT_ADDRESS: $contractDistinct")

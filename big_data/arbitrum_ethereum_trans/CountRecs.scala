@@ -10,7 +10,7 @@ object CountRecs {
     val sc = spark.sparkContext
 
     // Path to your downloaded parquet files
-    val inputPath = "arbitrum_sample/"
+    val inputPath = "Arbitrum/arbitrum_sample"
 
     val df = spark.read.parquet(inputPath)
 

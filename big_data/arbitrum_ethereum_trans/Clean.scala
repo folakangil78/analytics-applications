@@ -8,7 +8,7 @@ object Clean {
       .appName("Clean Arbitrum Data")
       .getOrCreate()
 
-    val inputPath = "arbitrum_sample/"
+    val inputPath = "Arbitrum/arbitrum_sample"
     val outputPath = "hdfs:///user/cleaned_arbitrum/"
 
     val df = spark.read.parquet(inputPath)

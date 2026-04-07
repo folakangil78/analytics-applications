@@ -12,3 +12,16 @@ object Clean {
     val outputPath = "hdfs:///user/cleaned_arbitrum/"
 
     val df = spark.read.parquet(inputPath)
+
+    // -----------------------------
+    // SELECT ONLY RELEVANT COLUMNS
+    // -----------------------------
+    val cleaned = df.select(
+      col("FROM_ADDRESS"),
+      col("TO_ADDRESS"),
+      col("VALUE"),
+      col("DATETIME"),
+      col("TRANSACTION_HASH"),
+      col("STATUS"),
+      col("CONTRACT_ADDRESS")
+    )

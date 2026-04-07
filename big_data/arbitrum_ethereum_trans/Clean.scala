@@ -41,3 +41,24 @@ object Clean {
     // REMOVE ZERO VALUE TX (noise)
     // -----------------------------
     val meaningful = validTx.filter(col("VALUE") > 0)
+
+    // -----------------------------
+    // ADD FEATURE: DATE (for grouping later)
+    // -----------------------------
+    val enriched = meaningful.withColumn(
+      "DATE",
+      to_date(col("DATETIME"))
+    )
+
+    // -----------------------------
+    // WRITE TO HDFS
+    // -----------------------------
+    enriched.write
+      .mode("overwrite")
+      .parquet(outputPath)
+
+    println("Cleaned data written to HDFS.")
+
+    spark.stop()
+  }
+}

@@ -57,3 +57,30 @@ object CountRecs {
 
     println("Sample Key-Value Counts:")
     txCounts.take(10).foreach(println)
+
+        // 4. DISTINCT VALUES PER COLUMN
+    val columns = Seq(
+      "MAX_PRIORITY_FEE_PER_GAS_GWEI",
+      "MAX_FEE_PER_GAS_GWEI",
+      "GAS_USED",
+      "FROM_ADDRESS",
+      "TO_ADDRESS",
+      "CONTRACT_ADDRESS",
+      "DATETIME",
+      "BLOCK_NUMBER",
+      "STATUS",
+      "INPUT"
+    )
+
+    columns.foreach { colName =>
+      val distinctCount = selectedDF.select(col(colName)).distinct().count()
+      println(s"Distinct count for $colName: $distinctCount")
+    }
+
+    // OPTIONAL: show some distinct addresses (useful sanity check)
+    println("Sample distinct FROM_ADDRESS:")
+    selectedDF.select("FROM_ADDRESS").distinct().show(10, false)
+
+    spark.stop()
+  }
+}

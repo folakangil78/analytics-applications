@@ -42,4 +42,18 @@ object CountRecs {
         row.getAs[String]("CONTRACT_ADDRESS")
       )
 
-    
+    val value = (
+        row.getAs[Double]("GAS_USED"),
+        row.getAs[Double]("MAX_FEE_PER_GAS_GWEI"),
+        row.getAs[Double]("MAX_PRIORITY_FEE_PER_GAS_GWEI"),
+        row.getAs[Long]("DATETIME")
+      )
+
+      (key, value)
+    })
+
+    // Example aggregation: count transactions per key
+    val txCounts = kvRDD.mapValues(_ => 1).reduceByKey(_ + _)
+
+    println("Sample Key-Value Counts:")
+    txCounts.take(10).foreach(println)

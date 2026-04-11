@@ -1,11 +1,6 @@
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 
-val df = spark.read.parquet("hdfs:///user/your_user/arbitrum_sample/")
-df.printSchema()
-df.count()
-
-
 object CountRecs {
   def main(args: Array[String]): Unit = {
 
@@ -20,6 +15,8 @@ object CountRecs {
 
     // 1. READ ALL PARQUET FILES
     val df = spark.read.parquet(inputPath)
+    df.printSchema()
+    df.count()
 
     // Select only relevant columns
     val selectedDF = df.select(

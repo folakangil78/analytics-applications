@@ -90,3 +90,29 @@ object Clean {
         when(col("INPUT").isNull || col("INPUT") === "" || col("INPUT") === "0x", null)
         .otherwise(col("INPUT"))
       )
+
+    // -------------------------------
+    // 4. HANDLE MISSING / BAD DATA
+    // -------------------------------
+    val filteredDF = cleanedDF
+
+      // Drop rows missing critical fields
+      .filter(
+        col("FROM_ADDRESS").isNotNull &&
+        col("TO_ADDRESS").isNotNull &&
+        col("DATETIME").isNotNull
+      )
+
+      // Optional: remove failed transactions
+      .filter(col("STATUS") === 1)
+
+    // -------------------------------
+    // 5. REMOVE DUPLICATES
+    // -------------------------------
+    val dedupedDF = filteredDF.dropDuplicates(
+      "FROM_ADDRESS",
+      "TO_ADDRESS",
+      "DATETIME",
+      "VALUE",
+      "GAS_USED"
+    )

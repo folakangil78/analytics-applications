@@ -23,6 +23,7 @@ object CountRecs {
       $"MAX_PRIORITY_FEE_PER_GAS_GWEI",
       $"MAX_FEE_PER_GAS_GWEI",
       $"GAS_USED",
+      $"VALUE",
       $"FROM_ADDRESS",
       $"TO_ADDRESS",
       $"CONTRACT_ADDRESS",
@@ -45,6 +46,7 @@ object CountRecs {
       )
 
     val value = (
+        row.getAs[Double]("VALUE"),
         row.getAs[Double]("GAS_USED"),
         row.getAs[Double]("MAX_FEE_PER_GAS_GWEI"),
         row.getAs[Double]("MAX_PRIORITY_FEE_PER_GAS_GWEI"),
@@ -65,6 +67,7 @@ object CountRecs {
       "MAX_PRIORITY_FEE_PER_GAS_GWEI",
       "MAX_FEE_PER_GAS_GWEI",
       "GAS_USED",
+      "VALUE",
       "FROM_ADDRESS",
       "TO_ADDRESS",
       "CONTRACT_ADDRESS",

@@ -116,3 +116,16 @@ object Clean {
       "VALUE",
       "GAS_USED"
     )
+
+    // -------------------------------
+    // 6. WRITE CLEANED DATA
+    // -------------------------------
+    dedupedDF.write
+      .mode("overwrite")
+      .parquet(outputPath)
+
+    println(s"Cleaned data written to: $outputPath")
+
+    spark.stop()
+  }
+}

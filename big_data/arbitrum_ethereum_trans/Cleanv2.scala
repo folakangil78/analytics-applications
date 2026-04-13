@@ -35,3 +35,58 @@ object Clean {
       $"STATUS",
       $"INPUT"
     )
+
+    // -------------------------------
+    // 3. TYPE CLEANING + NORMALIZATION
+    // -------------------------------
+    val cleanedDF = selectedDF
+
+      // VALUE → fix precision
+      .withColumn("VALUE",
+        col("VALUE").cast(DecimalType(38, 18))
+      )
+
+      // GAS_USED → long
+      .withColumn("GAS_USED",
+        col("GAS_USED").cast(LongType)
+      )
+
+      // Fees → keep as double (fine for analysis)
+      .withColumn("MAX_FEE_PER_GAS_GWEI",
+        col("MAX_FEE_PER_GAS_GWEI").cast(DoubleType)
+      )
+      .withColumn("MAX_PRIORITY_FEE_PER_GAS_GWEI",
+        col("MAX_PRIORITY_FEE_PER_GAS_GWEI").cast(DoubleType)
+      )
+
+      // BLOCK_NUMBER → long
+      .withColumn("BLOCK_NUMBER",
+        col("BLOCK_NUMBER").cast(LongType)
+      )
+
+      // DATETIME → ensure long
+      .withColumn("DATETIME",
+        col("DATETIME").cast(LongType)
+      )
+
+      // STATUS → int
+      .withColumn("STATUS",
+        col("STATUS").cast(IntegerType)
+      )
+
+      // Normalize addresses (lowercase)
+      .withColumn("FROM_ADDRESS",
+        lower(col("FROM_ADDRESS"))
+      )
+      .withColumn("TO_ADDRESS",
+        lower(col("TO_ADDRESS"))
+      )
+      .withColumn("CONTRACT_ADDRESS",
+        lower(col("CONTRACT_ADDRESS"))
+      )
+
+      // INPUT cleanup
+      .withColumn("INPUT",
+        when(col("INPUT").isNull || col("INPUT") === "" || col("INPUT") === "0x", null)
+        .otherwise(col("INPUT"))
+      )

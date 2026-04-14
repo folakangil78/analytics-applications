@@ -3,6 +3,12 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.types._
 
+// NOTE: THE PARQUET DATA DOES NOT INCLUDE ANYTHING FROM THE FTX COLLAPSE/DEFI FLIGHT
+// VOLATILITY EVENT IN NOVEMBER 2022, THAT EVENT IS USED HERE IN THE CODE AS A CONTROL
+// TO MAKE SURE THE CALCULATIONS FOR THE TWO VOLATILTY EVENTS WE DID CHOOSE
+// (ARB TOKEN AIRDROP AND RED MONDAY FLASH CRASH) ARE ACCURATE.
+// FTX COLLAPSE MEASUREMENTS SHOULD ALL BE 0.
+
 object FirstCode {
     def main(args: Array[String]): Unit = {
 
@@ -21,9 +27,11 @@ object FirstCode {
     // =========================================================
     // 2. DATETIME FORMATTING (CRITICAL FOR EVENT FILTERING)
     // =========================================================
+
+    // Convert the Unix epoch timestamp (Long in seconds) to a standard YYYY-MM-DD Date
     val dfWithDate = df.withColumn(
-      "date",
-      to_date(from_unixtime(col("datetime") / 1000))
+        "date",
+        to_date(col("DATETIME").cast("timestamp"))
     )
 
     // =========================================================
@@ -51,7 +59,8 @@ object FirstCode {
     val ftxDates = Seq("2022-11-06", "2022-11-08", "2022-11-10")
 
     def filterEvent(dates: Seq[String]) =
-      cleanTypedDF.filter(col("date").isin(dates.map(to_date(lit(_))): _*))
+        cleanTypedDF.filter(col("date").isin(dates: _*))
+
 
     val airdropDF = filterEvent(airdropDates)
     val flashDF = filterEvent(flashCrashDates)
@@ -78,8 +87,13 @@ object FirstCode {
 
         println(s"$c -> mean: $meanVal | stddev: $stdVal")
 
-        // Median approximation (Spark exact median is expensive)
-        val median = df.stat.approxQuantile(c, Array(0.5), 0.0)(0)
+        // True median approximation (1% relative error to prevent mem leak)
+        val quantiles = df.stat.approxQuantile(c, Array(0.5), 0.01)
+
+        val median =
+            if (quantiles.nonEmpty) quantiles(0)
+            else Double.NaN
+
         println(s"$c -> median: $median")
       }
     }

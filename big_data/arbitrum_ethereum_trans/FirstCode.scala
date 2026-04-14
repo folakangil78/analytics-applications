@@ -87,3 +87,25 @@ object FirstCode {
     computeStats(airdropDF, "AIRDROP")
     computeStats(flashDF, "FLASH CRASH")
     computeStats(ftxDF, "FTX COLLAPSE")
+
+    // =========================================================
+    // 7. TOP 25 ADDRESSES BY GAS (FROM + TO COMBINED)
+    // =========================================================
+    def topAddressesByGas(df: org.apache.spark.sql.DataFrame, label: String): Unit = {
+
+      println(s"\n==================== $label TOP 25 GAS ADDRESSES ====================")
+
+      val fromAgg = df.groupBy("from_address")
+        .agg(sum("gas_used").as("total_gas"))
+
+      val toAgg = df.groupBy("to_address")
+        .agg(sum("gas_used").as("total_gas"))
+
+      val combined = fromAgg.union(toAgg)
+        .groupBy("from_address")
+        .agg(sum("total_gas").as("total_gas"))
+        .orderBy(desc("total_gas"))
+        .limit(25)
+
+      combined.show(false)
+    }

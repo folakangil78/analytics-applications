@@ -1,4 +1,5 @@
 import org.apache.spark.sql.SparkSession
+spark.conf.set("spark.sql.codegen.wholeStage", "false")
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 
@@ -43,35 +44,35 @@ object Clean {
 
       // VALUE → fix precision
       .withColumn("VALUE",
-        col("VALUE").cast(DecimalType(38, 18))
+        col("VALUE").cast("double")
       )
 
       // GAS_USED → long
       .withColumn("GAS_USED",
-        col("GAS_USED").cast(LongType)
+        col("GAS_USED").cast("long")
       )
 
       // Fees → keep as double (fine for analysis)
       .withColumn("MAX_FEE_PER_GAS_GWEI",
-        col("MAX_FEE_PER_GAS_GWEI").cast(DoubleType)
+        col("MAX_FEE_PER_GAS_GWEI").cast("double")
       )
       .withColumn("MAX_PRIORITY_FEE_PER_GAS_GWEI",
-        col("MAX_PRIORITY_FEE_PER_GAS_GWEI").cast(DoubleType)
+        col("MAX_PRIORITY_FEE_PER_GAS_GWEI").cast("double")
       )
 
       // BLOCK_NUMBER → long
       .withColumn("BLOCK_NUMBER",
-        col("BLOCK_NUMBER").cast(LongType)
+        col("BLOCK_NUMBER").cast("long")
       )
 
       // DATETIME → ensure long
       .withColumn("DATETIME",
-        col("DATETIME").cast(LongType)
+        col("DATETIME").cast("long")
       )
 
       // STATUS → int
       .withColumn("STATUS",
-        col("STATUS").cast(IntegerType)
+        col("STATUS").cast("int")
       )
 
       // Normalize addresses (lowercase)

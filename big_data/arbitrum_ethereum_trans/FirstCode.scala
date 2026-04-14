@@ -33,3 +33,26 @@ object FirstCode {
       .withColumn("from_address", lower(trim(col("from_address"))))
       .withColumn("to_address", lower(trim(col("to_address"))))
       .withColumn("contract_address", lower(trim(col("contract_address"))))
+
+      // =========================================================
+    // 4. CAST NUMERIC FIELDS SAFELY
+    // =========================================================
+    val cleanTypedDF = normalizedDF
+      .withColumn("gas_used", col("gas_used").cast("double"))
+      .withColumn("value", col("value").cast("double"))
+      .withColumn("max_fee_per_gas_gwei", col("max_fee_per_gas_gwei").cast("double"))
+      .withColumn("max_priority_fee_per_gas_gwei", col("max_priority_fee_per_gas_gwei").cast("double"))
+
+    // =========================================================
+    // 5. EVENT WINDOWS
+    // =========================================================
+    val airdropDates = Seq("2023-03-15", "2023-03-16", "2023-03-23", "2023-03-24")
+    val flashCrashDates = Seq("2024-08-01", "2024-08-04", "2024-08-05")
+    val ftxDates = Seq("2022-11-06", "2022-11-08", "2022-11-10")
+
+    def filterEvent(dates: Seq[String]) =
+      cleanTypedDF.filter(col("date").isin(dates.map(to_date(lit(_))): _*))
+
+    val airdropDF = filterEvent(airdropDates)
+    val flashDF = filterEvent(flashCrashDates)
+    val ftxDF = filterEvent(ftxDates)

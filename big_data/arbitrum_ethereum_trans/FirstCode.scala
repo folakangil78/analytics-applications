@@ -56,3 +56,34 @@ object FirstCode {
     val airdropDF = filterEvent(airdropDates)
     val flashDF = filterEvent(flashCrashDates)
     val ftxDF = filterEvent(ftxDates)
+
+    // =========================================================
+    // 6. GLOBAL STATISTICS FUNCTION
+    // =========================================================
+    def computeStats(df: org.apache.spark.sql.DataFrame, label: String): Unit = {
+
+      println(s"\n==================== $label STATS ====================")
+
+      val cols = Seq("gas_used", "value")
+
+      cols.foreach { c =>
+
+        val stats = df.select(
+          mean(col(c)).as("mean"),
+          stddev(col(c)).as("stddev")
+        ).collect()(0)
+
+        val meanVal = stats.getAs[Double]("mean")
+        val stdVal  = stats.getAs[Double]("stddev")
+
+        println(s"$c -> mean: $meanVal | stddev: $stdVal")
+
+        // Median approximation (Spark exact median is expensive)
+        val median = df.stat.approxQuantile(c, Array(0.5), 0.0)(0)
+        println(s"$c -> median: $median")
+      }
+    }
+
+    computeStats(airdropDF, "AIRDROP")
+    computeStats(flashDF, "FLASH CRASH")
+    computeStats(ftxDF, "FTX COLLAPSE")

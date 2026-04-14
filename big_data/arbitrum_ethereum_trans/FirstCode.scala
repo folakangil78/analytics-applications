@@ -109,3 +109,33 @@ object FirstCode {
 
       combined.show(false)
     }
+
+    // =========================================================
+    // 8. TOP 25 ADDRESSES BY VALUE
+    // =========================================================
+    def topAddressesByValue(df: org.apache.spark.sql.DataFrame, label: String): Unit = {
+
+      println(s"\n==================== $label TOP 25 VALUE ADDRESSES ====================")
+
+      val fromAgg = df.groupBy("from_address")
+        .agg(sum("value").as("total_value"))
+
+      val toAgg = df.groupBy("to_address")
+        .agg(sum("value").as("total_value"))
+
+      val combined = fromAgg.union(toAgg)
+        .groupBy("from_address")
+        .agg(sum("total_value").as("total_value"))
+        .orderBy(desc("total_value"))
+        .limit(25)
+
+      combined.show(false)
+    }
+
+    topAddressesByGas(airdropDF, "AIRDROP")
+    topAddressesByGas(flashDF, "FLASH CRASH")
+    topAddressesByGas(ftxDF, "FTX COLLAPSE")
+
+    topAddressesByValue(airdropDF, "AIRDROP")
+    topAddressesByValue(flashDF, "FLASH CRASH")
+    topAddressesByValue(ftxDF, "FTX COLLAPSE")

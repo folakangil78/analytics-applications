@@ -4,3 +4,16 @@ import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.types._
 
 object FirstCode {
+    def main(args: Array[String]): Unit = {
+
+    val spark = SparkSession.builder()
+      .appName("Arbitrum Event Analytics v1")
+      .enableHiveSupport()
+      .getOrCreate()
+
+    import spark.implicits._
+
+    // =========================================================
+    // 1. LOAD DATA FROM HIVE TABLE (cleaned dataset)
+    // =========================================================
+    val df = spark.table("arbitrum_db.arbitrum_cleaned")

@@ -139,3 +139,54 @@ object FirstCode {
     topAddressesByValue(airdropDF, "AIRDROP")
     topAddressesByValue(flashDF, "FLASH CRASH")
     topAddressesByValue(ftxDF, "FTX COLLAPSE")
+
+    // =========================================================
+    // 9. STATISTICAL OUTLIERS (Z-SCORE METHOD)
+    // =========================================================
+    def detectOutliers(df: org.apache.spark.sql.DataFrame, label: String): Unit = {
+
+      println(s"\n==================== $label OUTLIERS ====================")
+
+      val stats = df.select(
+        mean("gas_used").as("mean_gas"),
+        stddev("gas_used").as("std_gas"),
+        mean("value").as("mean_val"),
+        stddev("value").as("std_val")
+      ).collect()(0)
+
+      val meanGas = stats.getAs[Double]("mean_gas")
+      val stdGas  = stats.getAs[Double]("std_gas")
+      val meanVal = stats.getAs[Double]("mean_val")
+      val stdVal  = stats.getAs[Double]("std_val")
+
+      val withZ = df.withColumn("z_gas",
+          (col("gas_used") - meanGas) / stdGas
+        )
+        .withColumn("z_value",
+          (col("value") - meanVal) / stdVal
+        )
+
+      val outliers = withZ.filter(
+        abs(col("z_gas")) >= 3 || abs(col("z_value")) >= 3
+      )
+
+      println(s"Total outliers: ${outliers.count()}")
+
+      outliers.select(
+        "from_address",
+        "to_address",
+        "gas_used",
+        "value",
+        "date",
+        "z_gas",
+        "z_value"
+      ).show(25, false)
+    }
+
+    detectOutliers(airdropDF, "AIRDROP")
+    detectOutliers(flashDF, "FLASH CRASH")
+    detectOutliers(ftxDF, "FTX COLLAPSE")
+
+    spark.stop()
+  }
+}

@@ -69,11 +69,11 @@ object Clean {
     val meaningful = validTx.filter(col("VALUE") > 0)
 
     // -----------------------------
-    // ADD FEATURE: DATE (for grouping later)
+    // ADD FEATURE: TIMESTAMP (full date + time of day, for grouping later)
     // -----------------------------
     val enriched = meaningful.withColumn(
-      "DATE",
-      to_date(col("DATETIME"))
+      "DATETIME_TS",
+      col("DATETIME").cast("timestamp")
     )
 
     // -----------------------------

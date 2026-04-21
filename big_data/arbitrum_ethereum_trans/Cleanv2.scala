@@ -24,8 +24,8 @@ object Clean {
     // 2. SELECT ONLY RELEVANT COLUMNS
     // -------------------------------
     val selectedDF = df.select(
-      $"MAX_PRIORITY_FEE_PER_GAS_GWEI",
-      $"MAX_FEE_PER_GAS_GWEI",
+      $"MAX_PRIORITY_FEE_PER_GAS",
+      $"MAX_FEE_PER_GAS",
       $"GAS_USED",
       $"VALUE",
       $"FROM_ADDRESS",
@@ -53,11 +53,11 @@ object Clean {
       )
 
       // Fees → keep as double (fine for analysis)
-      .withColumn("MAX_FEE_PER_GAS_GWEI",
-        col("MAX_FEE_PER_GAS_GWEI").cast("double")
+      .withColumn("MAX_FEE_PER_GAS",
+        col("MAX_FEE_PER_GAS").cast("double")
       )
-      .withColumn("MAX_PRIORITY_FEE_PER_GAS_GWEI",
-        col("MAX_PRIORITY_FEE_PER_GAS_GWEI").cast("double")
+      .withColumn("MAX_PRIORITY_FEE_PER_GAS",
+        col("MAX_PRIORITY_FEE_PER_GAS").cast("double")
       )
 
       // BLOCK_NUMBER → long
@@ -103,9 +103,6 @@ object Clean {
         col("TO_ADDRESS").isNotNull &&
         col("DATETIME").isNotNull
       )
-
-      // Optional: remove failed transactions
-      .filter(col("STATUS") === 1)
 
     // -------------------------------
     // 5. REMOVE DUPLICATES

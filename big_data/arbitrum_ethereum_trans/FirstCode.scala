@@ -4,10 +4,10 @@ import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.types._
 
 // NOTE: THE PARQUET DATA DOES NOT INCLUDE ANYTHING FROM THE FTX COLLAPSE/DEFI FLIGHT
-// VOLATILITY EVENT IN NOVEMBER 2022, THAT EVENT IS USED HERE IN THE CODE AS A CONTROL
-// TO MAKE SURE THE CALCULATIONS FOR THE TWO VOLATILTY EVENTS WE DID CHOOSE
+// VOLATILITY EVENT IN NOVEMBER 2022; THAT EVENT IS USED AS A CONTROL
+// TO MAKE SURE THE CALCULATIONS FOR OTHER TWO VOLATILTY EVENTS
 // (ARB TOKEN AIRDROP AND RED MONDAY FLASH CRASH) ARE ACCURATE.
-// FTX COLLAPSE MEASUREMENTS SHOULD ALL BE 0.
+// FTX COLLAPSE MEASUREMENTS SHOULD ALL BE 0, FTX DATA ISN'T DOWNLOADED FROM BUCKET.
 
 object FirstCode {
     def main(args: Array[String]): Unit = {
@@ -20,18 +20,19 @@ object FirstCode {
     import spark.implicits._
 
     // =========================================================
-    // 1. LOAD DATA FROM HIVE TABLE (cleaned dataset)
+    // 1. LOAD DATA FROM HIVE TABLE (cleaned data)
     // =========================================================
     val df = spark.table("arbitrum_db.arbitrum_cleaned")
 
     // =========================================================
-    // 2. DATETIME FORMATTING (CRITICAL FOR EVENT FILTERING)
+    // 2. DATETIME FORMATTING (EVENT FILTERING)
     // =========================================================
 
-    // Convert the Unix epoch timestamp (Long in seconds) to a standard YYYY-MM-DD Date
+    // Convert the Unix epoch timestamp (Long in seconds) to a full timestamp
+    // (preserves both date and exact time of day, e.g. 2023-03-15 14:32:07)
     val dfWithDate = df.withColumn(
-        "date",
-        to_date(col("DATETIME").cast("timestamp"))
+        "datetime_ts",
+        col("DATETIME").cast("timestamp")
     )
 
     // =========================================================
@@ -48,8 +49,8 @@ object FirstCode {
     val cleanTypedDF = normalizedDF
       .withColumn("gas_used", col("gas_used").cast("double"))
       .withColumn("value", col("value").cast("double"))
-      .withColumn("max_fee_per_gas_gwei", col("max_fee_per_gas_gwei").cast("double"))
-      .withColumn("max_priority_fee_per_gas_gwei", col("max_priority_fee_per_gas_gwei").cast("double"))
+      .withColumn("max_fee_per_gas", col("max_fee_per_gas").cast("double"))
+      .withColumn("max_priority_fee_per_gas", col("max_priority_fee_per_gas").cast("double"))
 
     // =========================================================
     // 5. EVENT WINDOWS
@@ -59,7 +60,7 @@ object FirstCode {
     val ftxDates = Seq("2022-11-06", "2022-11-08", "2022-11-10")
 
     def filterEvent(dates: Seq[String]) =
-        cleanTypedDF.filter(col("date").isin(dates: _*))
+        cleanTypedDF.filter(to_date(col("datetime_ts")).isin(dates: _*))
 
 
     val airdropDF = filterEvent(airdropDates)
@@ -155,7 +156,7 @@ object FirstCode {
     topAddressesByValue(ftxDF, "FTX COLLAPSE")
 
     // =========================================================
-    // 9. STATISTICAL OUTLIERS (Z-SCORE METHOD)
+    // 9. STATISTICAL OUTLIERS (Z-SCORE)
     // =========================================================
     def detectOutliers(df: org.apache.spark.sql.DataFrame, label: String): Unit = {
 
@@ -191,7 +192,7 @@ object FirstCode {
         "to_address",
         "gas_used",
         "value",
-        "date",
+        "datetime_ts",
         "z_gas",
         "z_value"
       ).show(25, false)

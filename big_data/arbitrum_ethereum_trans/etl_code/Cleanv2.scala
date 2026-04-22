@@ -24,8 +24,8 @@ object Clean {
     // 2. SELECT ONLY RELEVANT COLUMNS
     // -------------------------------
     val selectedDF = df.select(
-      $"MAX_PRIORITY_FEE_PER_GAS",
-      $"MAX_FEE_PER_GAS",
+      $"MAX_PRIORITY_FEE_PER_GAS_GWEI",
+      $"MAX_FEE_PER_GAS_GWEI",
       $"GAS_USED",
       $"VALUE",
       $"FROM_ADDRESS",
@@ -53,11 +53,11 @@ object Clean {
       )
 
       // Fees → keep as double (fine for analysis)
-      .withColumn("MAX_FEE_PER_GAS",
-        col("MAX_FEE_PER_GAS").cast("double")
+      .withColumn("MAX_FEE_PER_GAS_GWEI",
+        col("MAX_FEE_PER_GAS_GWEI").cast("double")
       )
-      .withColumn("MAX_PRIORITY_FEE_PER_GAS",
-        col("MAX_PRIORITY_FEE_PER_GAS").cast("double")
+      .withColumn("MAX_PRIORITY_FEE_PER_GAS_GWEI",
+        col("MAX_PRIORITY_FEE_PER_GAS_GWEI").cast("double")
       )
 
       // BLOCK_NUMBER → long
@@ -103,6 +103,32 @@ object Clean {
         col("TO_ADDRESS").isNotNull &&
         col("DATETIME").isNotNull
       )
+
+    // ---------------------------------------------------------------
+    // (REMOVED) 4.5. DROP FAILED TRANSACTIONS -- kept commented as an
+    //                                           audit trail
+    // ---------------------------------------------------------------
+    // The block below used to be part of this cleaner. It dropped every
+    // row with STATUS != 1 (i.e. failed transactions) so that the main
+    // analytics downstream only ever saw successful txs.
+    //
+    // It was removed after test_code/FailedTransacts.scala profiled the
+    // cleaned dataset and counted ZERO rows with STATUS != 1. The filter
+    // was a no-op on this data -- every transaction the S3 dump gave us
+    // was already STATUS == 1 -- so carrying it forward was pure clutter.
+    //
+    // The existence of this filter also documents a scrapped analytic:
+    // the original plan was to treat failed transactions as potential
+    // VICTIMS of sandwich attacks (an attacker's front-run + back-run pair
+    // can squeeze a victim's swap so severely that the victim's tx runs
+    // out of gas and reverts -- STATUS = 0). A separate sandwich-attack
+    // script would have mined those failed rows. With zero failed txs in
+    // the data there was no victim signal to mine, so the investigation
+    // pivoted to per-block priority-fee z-score analysis on successful
+    // transactions instead -- see ana_code/SecondCode.scala.
+    //
+    // val successOnlyDF = filteredDF.filter(col("STATUS") === 1)
+    // ---------------------------------------------------------------
 
     // -------------------------------
     // 5. REMOVE DUPLICATES

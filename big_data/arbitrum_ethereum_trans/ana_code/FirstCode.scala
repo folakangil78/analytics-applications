@@ -7,7 +7,7 @@ import org.apache.spark.sql.types._
 // VOLATILITY EVENT IN NOVEMBER 2022; THAT EVENT IS USED AS A CONTROL
 // TO MAKE SURE THE CALCULATIONS FOR OTHER TWO VOLATILTY EVENTS
 // (ARB TOKEN AIRDROP AND RED MONDAY FLASH CRASH) ARE ACCURATE.
-// FTX COLLAPSE MEASUREMENTS SHOULD ALL BE 0, FTX DATA ISN'T DOWNLOADED FROM BUCKET.
+// FTX COLLAPSE MEASUREMENTS SHOULD BE 0/EMPTY, FTX DATA ISN'T DOWNLOADED FROM BUCKET.
 
 object FirstCode {
     def main(args: Array[String]): Unit = {
@@ -49,8 +49,8 @@ object FirstCode {
     val cleanTypedDF = normalizedDF
       .withColumn("gas_used", col("gas_used").cast("double"))
       .withColumn("value", col("value").cast("double"))
-      .withColumn("max_fee_per_gas", col("max_fee_per_gas").cast("double"))
-      .withColumn("max_priority_fee_per_gas", col("max_priority_fee_per_gas").cast("double"))
+      .withColumn("max_fee_per_gas_gwei", col("max_fee_per_gas_gwei").cast("double"))
+      .withColumn("max_priority_fee_per_gas_gwei", col("max_priority_fee_per_gas_gwei").cast("double"))
 
     // =========================================================
     // 5. EVENT WINDOWS
@@ -99,9 +99,9 @@ object FirstCode {
       }
     }
 
-    computeStats(airdropDF, "AIRDROP")
-    computeStats(flashDF, "FLASH CRASH")
-    computeStats(ftxDF, "FTX COLLAPSE")
+    computeStats(airdropDF, "ARB TOKEN AIRDROP (March 2023) --")
+    computeStats(flashDF, "RED MONDAY FLASH CRASH (August 2024) --")
+    computeStats(ftxDF, "FTX COLLAPSE & DEFI FLIGHT (November 2022) --")
 
     // =========================================================
     // 7. TOP 25 ADDRESSES BY GAS (FROM + TO COMBINED)
@@ -147,13 +147,13 @@ object FirstCode {
       combined.show(false)
     }
 
-    topAddressesByGas(airdropDF, "AIRDROP")
-    topAddressesByGas(flashDF, "FLASH CRASH")
-    topAddressesByGas(ftxDF, "FTX COLLAPSE")
+    topAddressesByGas(airdropDF, "ARB TOKEN AIRDROP (March 2023) --")
+    topAddressesByGas(flashDF, "RED MONDAY FLASH CRASH (August 2024) --")
+    topAddressesByGas(ftxDF, "FTX COLLAPSE & DEFI FLIGHT (November 2022) --")
 
-    topAddressesByValue(airdropDF, "AIRDROP")
-    topAddressesByValue(flashDF, "FLASH CRASH")
-    topAddressesByValue(ftxDF, "FTX COLLAPSE")
+    topAddressesByValue(airdropDF, "ARB TOKEN AIRDROP (March 2023) --")
+    topAddressesByValue(flashDF, "RED MONDAY FLASH CRASH (August 2024) --")
+    topAddressesByValue(ftxDF, "FTX COLLAPSE & DEFI FLIGHT (November 2022) --")
 
     // =========================================================
     // 9. STATISTICAL OUTLIERS (Z-SCORE)
@@ -198,9 +198,9 @@ object FirstCode {
       ).show(25, false)
     }
 
-    detectOutliers(airdropDF, "AIRDROP")
-    detectOutliers(flashDF, "FLASH CRASH")
-    detectOutliers(ftxDF, "FTX COLLAPSE")
+    detectOutliers(airdropDF, "ARB TOKEN AIRDROP (March 2023) --")
+    detectOutliers(flashDF, "RED MONDAY FLASH CRASH (August 2024) --")
+    detectOutliers(ftxDF, "FTX COLLAPSE & DEFI FLIGHT (November 2022) --")
 
     spark.stop()
   }

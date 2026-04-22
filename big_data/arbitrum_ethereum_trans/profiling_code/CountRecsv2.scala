@@ -20,8 +20,8 @@ object CountRecs {
 
     // Select only relevant columns
     val selectedDF = df.select(
-      $"MAX_PRIORITY_FEE_PER_GAS",
-      $"MAX_FEE_PER_GAS",
+      $"MAX_PRIORITY_FEE_PER_GAS_GWEI",
+      $"MAX_FEE_PER_GAS_GWEI",
       $"GAS_USED",
       $"VALUE",
       $"FROM_ADDRESS",
@@ -48,8 +48,8 @@ object CountRecs {
     val value = (
         row.getAs[Double]("VALUE"),
         row.getAs[Double]("GAS_USED"),
-        row.getAs[Double]("MAX_FEE_PER_GAS"),
-        row.getAs[Double]("MAX_PRIORITY_FEE_PER_GAS"),
+        row.getAs[Double]("MAX_FEE_PER_GAS_GWEI"),
+        row.getAs[Double]("MAX_PRIORITY_FEE_PER_GAS_GWEI"),
         row.getAs[Long]("DATETIME"),
       )
 
@@ -64,8 +64,8 @@ object CountRecs {
 
         // 4. DISTINCT VALUES PER COLUMN
     val columns = Seq(
-      "MAX_PRIORITY_FEE_PER_GAS",
-      "MAX_FEE_PER_GAS",
+      "MAX_PRIORITY_FEE_PER_GAS_GWEI",
+      "MAX_FEE_PER_GAS_GWEI",
       "GAS_USED",
       "VALUE",
       "FROM_ADDRESS",

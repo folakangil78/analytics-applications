@@ -1,0 +1,58 @@
+%% Arbitrum Volatility-Event Transaction Analytics
+%% High-level design diagram: inputs, tools, outputs
+
+classDiagram
+    direction LR
+
+    class RawBlockchainData {
+        <<input>>
+        +public Arbitrum transaction parquet
+        +ARB airdrop window, Mar 2023
+        +Red Monday flash-crash window, Aug 2024
+        +FTX collapse window -- control, not downloaded
+    }
+
+    class Toolchain {
+        <<tools>>
+        +AWS CLI -- S3 ingest
+        +HDFS -- distributed storage
+        +Hive -- SQL table layer
+        +Spark on YARN -- compute engine
+    }
+
+    class ETL {
+        <<stage>>
+        +ingests parquet from S3 into HDFS
+        +cleans schema, addresses, fees
+        +deduplicates and publishes to Hive
+    }
+
+    class GlobalStatsAnalytic {
+        <<stage>>
+        +per-event mean, stddev, median on gas and value
+        +top 25 addresses by total gas and by total value
+        +global statistical outliers, z >= 3
+    }
+
+    class FrontRunningAnalytic {
+        <<stage>>
+        +groups per block and target contract
+        +flags extortionate priority-fee bribes, z >= 2
+        +ranks repeat-offender wallets
+    }
+
+    class Findings {
+        <<output>>
+        +per-event summary statistics and outliers
+        +ranked suspect wallets -- MEV bots, insiders
+        +FTX control returns empty, no false signal
+    }
+
+    RawBlockchainData --> ETL : feeds
+    Toolchain ..> ETL : powers
+    Toolchain ..> GlobalStatsAnalytic : powers
+    Toolchain ..> FrontRunningAnalytic : powers
+    ETL --> GlobalStatsAnalytic : cleaned data
+    ETL --> FrontRunningAnalytic : cleaned data
+    GlobalStatsAnalytic --> Findings : produces
+    FrontRunningAnalytic --> Findings : produces
